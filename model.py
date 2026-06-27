@@ -19,6 +19,8 @@ class MultipleRegression:
 
         self.loss = []
 
+        self.fig, (self.error) = plt.subplots()
+
     def get_parameters(self):
         return f"""Weights: {self.weights}
 Bias: {self.bias}
@@ -26,7 +28,7 @@ Learning rate: {self.learning_rate}
 Batch: {self.batch}
 Epochs: {self.epochs}"""
 
-    def train(self, X, Y, final_graph=False):
+    def train(self, X, Y, cost_funtion=False):
         batch_x = np.array_split(X, len(X) / self.batch)
         batch_y = np.array_split(Y, len(Y) / self.batch)
 
@@ -36,11 +38,10 @@ Epochs: {self.epochs}"""
                 y = batch_y[itr][:5]
                 n = len(x)
 
-                transpose_x = np.transpose(x)  # x.values for np
-
                 # Forward pass
                 # col level addition (n x n) + bias
-                y_pred = (transpose_x * self.weights).sum(axis=0) + self.bias
+                transpose_x = np.transpose(x)  # x.values for np
+                y_pred = (self.weights * transpose_x).sum(axis=0) + self.bias
 
                 # Calculate loss
                 mse = self._calculate_loss(y, y_pred)
@@ -54,11 +55,34 @@ Epochs: {self.epochs}"""
 
                 self.loss.append(mse)
 
+        if cost_funtion:
+            self._cost_funtion(self.loss)
+        else:
+            self.fig.clear()
+
     def _calculate_loss(self, actual_var, predicted_var):
         return np.mean((actual_var - predicted_var) ** 2)
 
-    def _final_graph(self):
-        pass
+    def _cost_funtion(self, X):
+        self.error.plot(X, label="Training Loss", color="blue")
+
+        self.error.set_title("Loss per Iteration")
+        self.error.set_xlabel("Iteration / Epoch")
+        self.error.set_ylabel("Loss Value")
+
+    def get_accuracy(self, X, Y):
+        transpose_x = np.transpose(X)
+        y_pred = (self.weights * transpose_x).sum(axis=0) + self.bias
+
+        n = len(Y)
+
+        num = np.minimum(Y, y_pred)
+        denom = np.maximum(Y, y_pred)
+
+        score = (num / denom) * 100
+        score = 1 / n * np.sum(score)
+
+        return f"Accuracy: {score:.2f} %"
 
     def test_split(self, data, proportion: float):
         if proportion < 0 or proportion > 1:
