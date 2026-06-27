@@ -26,7 +26,7 @@ Learning rate: {self.learning_rate}
 Batch: {self.batch}
 Epochs: {self.epochs}"""
 
-    def train(self, X, Y):  # show_graph=False, final_graph=False
+    def train(self, X, Y, final_graph=False):
         batch_x = np.array_split(X, len(X) / self.batch)
         batch_y = np.array_split(Y, len(Y) / self.batch)
 
@@ -49,16 +49,16 @@ Epochs: {self.epochs}"""
                 dw = (-2 / n) * (x * (y - y_pred)).sum(axis=1)
                 db = (-2 / n) * np.sum(y - y_pred)
 
-                print(dw)
-                print(db)
-
-                self.weights -= self.learning_rate * dw.reshape(-1, 1)
+                self.weights -= self.learning_rate * dw.reshape(-1, 1)  # np.array(dw)
                 self.bias -= self.learning_rate * db
 
                 self.loss.append(mse)
 
     def _calculate_loss(self, actual_var, predicted_var):
         return np.mean((actual_var - predicted_var) ** 2)
+
+    def _final_graph(self):
+        pass
 
     def test_split(self, data, proportion: float):
         if proportion < 0 or proportion > 1:
